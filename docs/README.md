@@ -1,5 +1,3 @@
-/* ===== DOCUMENTATION ===== */
-
 # docs/README.md
 # Structured Products Generator
 
