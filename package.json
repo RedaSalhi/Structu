@@ -1,6 +1,3 @@
-/* ===== CONFIGURATION FILES ===== */
-
-/* package.json */
 {
   "name": "structured-products-frontend",
   "version": "1.0.0",
