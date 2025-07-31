@@ -264,4 +264,231 @@ const App: React.FC = () => {
                   >
                     <option value="CAC40">CAC 40</option>
                     <option value="EUROSTOXX50">Euro Stoxx 50</option>
-                    <option value="SP
+                    <option value="SP500">S&P 500</option>
+                    <option value="DAX">DAX</option>
+                    <option value="NIKKEI">Nikkei 225</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Produits disponibles */}
+            <div className="bg-white rounded-xl shadow-lg p-6 mt-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                Produits Disponibles
+              </h2>
+              <div className="space-y-2">
+                {PRODUCT_DATABASE.map((product) => (
+                  <button
+                    key={product.id}
+                    onClick={() => setSelectedProduct(product)}
+                    className={`w-full text-left p-3 rounded-lg border transition-colors ${
+                      selectedProduct?.id === product.id
+                        ? 'border-blue-500 bg-blue-50 text-blue-900'
+                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="font-medium">{product.name}</div>
+                    <div className="text-sm text-gray-600">{product.type}</div>
+                    <div className="text-sm text-gray-500">
+                      Rendement: {product.expectedReturn}% | Risque: {product.riskLevel}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Résultats et graphiques */}
+          <div className="lg:col-span-2">
+            {selectedProduct && (
+              <>
+                {/* Informations du produit sélectionné */}
+                <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                        {selectedProduct.name}
+                      </h2>
+                      <p className="text-gray-600 mb-4">{selectedProduct.description}</p>
+                    </div>
+                    <button
+                      onClick={generatePDF}
+                      disabled={!calculationResult}
+                      className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <Download className="mr-2 h-4 w-4" />
+                      Export PDF
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="text-center p-4 bg-green-50 rounded-lg">
+                      <TrendingUp className="mx-auto h-8 w-8 text-green-600 mb-2" />
+                      <div className="text-2xl font-bold text-green-900">
+                        {selectedProduct.expectedReturn}%
+                      </div>
+                      <div className="text-sm text-green-700">Rendement cible</div>
+                    </div>
+                    
+                    <div className="text-center p-4 bg-red-50 rounded-lg">
+                      <Shield className="mx-auto h-8 w-8 text-red-600 mb-2" />
+                      <div className="text-2xl font-bold text-red-900">
+                        {selectedProduct.maxLoss}%
+                      </div>
+                      <div className="text-sm text-red-700">Perte maximale</div>
+                    </div>
+                    
+                    <div className="text-center p-4 bg-blue-50 rounded-lg">
+                      <Calculator className="mx-auto h-8 w-8 text-blue-600 mb-2" />
+                      <div className="text-2xl font-bold text-blue-900">
+                        {selectedProduct.minDuration}-{selectedProduct.maxDuration}
+                      </div>
+                      <div className="text-sm text-blue-700">Durée (années)</div>
+                    </div>
+                    
+                    <div className="text-center p-4 bg-purple-50 rounded-lg">
+                      <Target className="mx-auto h-8 w-8 text-purple-600 mb-2" />
+                      <div className="text-2xl font-bold text-purple-900">
+                        {selectedProduct.riskLevel}
+                      </div>
+                      <div className="text-sm text-purple-700">Niveau de risque</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Diagramme de payoff */}
+                <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                    Diagramme de Payoff
+                  </h3>
+                  
+                  {isCalculating ? (
+                    <div className="flex items-center justify-center h-64">
+                      <div className="text-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                        <p className="text-gray-600">Calcul en cours...</p>
+                      </div>
+                    </div>
+                  ) : (
+                    chartData && (
+                      <div className="h-64">
+                        <Line data={chartData} options={chartOptions} />
+                      </div>
+                    )
+                  )}
+                </div>
+
+                {/* Sensibilités (Greeks) */}
+                {calculationResult && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="bg-white rounded-xl shadow-lg p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                        Sensibilités (Greeks)
+                      </h3>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">Delta (∆)</span>
+                          <span className="font-mono text-lg">
+                            {calculationResult.greeks.delta.toFixed(4)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">Gamma (Γ)</span>
+                          <span className="font-mono text-lg">
+                            {calculationResult.greeks.gamma.toFixed(4)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">Vega (ν)</span>
+                          <span className="font-mono text-lg">
+                            {calculationResult.greeks.vega.toFixed(4)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">Theta (Θ)</span>
+                          <span className="font-mono text-lg">
+                            {calculationResult.greeks.theta.toFixed(4)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">Rho (ρ)</span>
+                          <span className="font-mono text-lg">
+                            {calculationResult.greeks.rho.toFixed(4)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Analyse de probabilité */}
+                    <div className="bg-white rounded-xl shadow-lg p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                        Analyse de Probabilité
+                      </h3>
+                      <div className="space-y-4">
+                        <div>
+                          <div className="flex justify-between items-center mb-1">
+                            <span className="text-gray-600">Probabilité de gain</span>
+                            <span className="font-semibold text-green-600">
+                              {(calculationResult.probability.positive * 100).toFixed(1)}%
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div 
+                              className="bg-green-500 h-2 rounded-full transition-all duration-500"
+                              style={{ width: `${calculationResult.probability.positive * 100}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <div className="flex justify-between items-center mb-1">
+                            <span className="text-gray-600">Probabilité de perte</span>
+                            <span className="font-semibold text-red-600">
+                              {(calculationResult.probability.negative * 100).toFixed(1)}%
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div 
+                              className="bg-red-500 h-2 rounded-full transition-all duration-500"
+                              style={{ width: `${calculationResult.probability.negative * 100}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <div className="flex justify-between items-center mb-1">
+                            <span className="text-gray-600">Probabilité de protection</span>
+                            <span className="font-semibold text-blue-600">
+                              {(calculationResult.probability.protection * 100).toFixed(1)}%
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div 
+                              className="bg-blue-500 h-2 rounded-full transition-all duration-500"
+                              style={{ width: `${calculationResult.probability.protection * 100}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-4 pt-4 border-t border-gray-200">
+                        <div className="text-sm text-gray-600 space-y-1">
+                          <div>Point mort: <span className="font-mono">{calculationResult.breakEven.toFixed(2)}</span></div>
+                          <div>Gain maximum: <span className="font-mono">{calculationResult.maxGain.toFixed(2)}</span></div>
+                          <div>Perte maximum: <span className="font-mono">{calculationResult.maxLoss.toFixed(2)}</span></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default App;
