@@ -2,7 +2,7 @@
   "name": "structured-products-generator",
   "version": "1.0.0",
   "private": true,
-  "homepage": "https://[votre-username].github.io/structured-products-generator",
+  "homepage": "https://redasalhi.github.io/Structu/",
   "dependencies": {
     "@types/node": "^18.15.0",
     "@types/react": "^18.0.28",
